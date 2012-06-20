@@ -6,7 +6,7 @@ import java.util.Vector;
 
 import android.util.Log;
 /**
- * the ChessPlayer may be either human or computer
+ * the ChessPlayer may be either human or computer or remote player
  * @author cussyou
  *
  */
@@ -21,7 +21,8 @@ public class ChessPlayer {
 	}
 	
 	/**
-	 * maybe asynchronized.p
+	 * if the player is a remote player, then send request move message.
+	 * if the player is a computer, then send a message to computer.
 	 * @param rival
 	 */
 	public void requestNextMove(ChessPlayer rival){
@@ -40,9 +41,12 @@ public class ChessPlayer {
 	 * @param move
 	 * @return return ture if this player lost
 	 */
-	public boolean onRivalMoved(ChessMove move){
+	public boolean onRivalMoved(ChessPiece[][] board, ChessMove move){
 		if( move.piece.pieceColor != this.side){
-			
+			if(board[move.destX][move.destY]!= null && 
+					board[move.destX][move.destY].pieceType == ChessPiece.PIECE_JIANG){
+				return true;
+			}
 		}else{
 			// this MUST NOT happen
 			Log.d(TAG," onRivalMoved() error");

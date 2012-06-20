@@ -11,10 +11,13 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.TextView;
 
 public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 	// the grid is chess board grid
@@ -30,10 +33,14 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 	
 	private SurfaceHolder holder;
 	DrawLoop loop ;
+	TextView text;
+	//
 	private Map<Integer, Bitmap> pieceBitmapMap = new HashMap<Integer,Bitmap>();
 	// bitmap
 	private Bitmap board;
 	private Bitmap pieceBackground;
+	
+	
 	public ChessView(Context context) {
 		super(context);
 		init(context);		
@@ -53,8 +60,6 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 		//
 		board = BitmapFactory.decodeResource(getResources(), R.drawable.qipan);
 		pieceBackground = BitmapFactory.decodeResource(getResources(), R.drawable.qizi);
-		//
-		
 	}
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
@@ -73,16 +78,38 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 			}
 			// check if here is ChessPiece
 			ChessPiece p = ChessState.getCurrentState().getChessPiece(coord.x, coord.y);
-			if(p == null && selectedPiece != null){
+			if(p == null && selectedPiece == null){
+				return true;
+			}
+			if(p == null && selectedPiece != null){		
+				
 				// move select to destination
 				ChessMove move = new ChessMove(ChessMove.MOVE_MOVE,selectedPiece, coord.x, coord.y);
 				ChessState.getCurrentState().onPieceMoved(move);
 				selectedPiece = null ;
+				
 			}
-			if(p !=null ){
-				// select this
-				selectedPiece = p;
+			if(p != null && selectedPiece == null){
+				if(p.pieceColor ==  ChessState.getCurrentState().whoMoveNext()){
+					selectedPiece = p;
+					return true;
+				}else{
+					return true; // can't move rival's piece;
+				}
 			}
+			if(p != null && selectedPiece != null){
+				if(p.pieceColor ==  ChessState.getCurrentState().whoMoveNext()){
+					selectedPiece = p;
+					return true;
+				}else{
+					// kill rival's piece 					
+					ChessMove move = new ChessMove(ChessMove.MOVE_MOVE,selectedPiece, coord.x, coord.y);
+					// check move first 
+					ChessState.getCurrentState().onPieceMoved(move);
+					selectedPiece = null;
+				}
+			}
+			
 			
 		}
 		return true;
@@ -255,6 +282,60 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 		public float x;
 		public float y;
 	}
+	 private Handler handler ;
+	    
+	class ChessHandler extends Handler {
+
+		@Override
+		public void handleMessage(Message msg) {
+
+			switch (msg.what) {
+			case ChessMessage.MSG_START:
+				handleStart();
+				break;
+			case ChessMessage.MSG_END:
+				break;
+			case ChessMessage.MSG_REQUEST_MOVE:
+				handleQuestNextMove();
+				break;
+			case ChessMessage.MSG_ON_MOVED:
+				handleOnMove(null);
+			default:
+				break;
+			}
+			// draw
+		}
+	}
+
+	private void handleStart() {
+		ChessState.getCurrentState(); // init
+		Message m = new Message();
+		m.what = ChessMessage.MSG_REQUEST_MOVE;
+		handler.sendMessage(m);
+	}
+
+	private void handleQuestNextMove() {		
+		
+		ChessState.getCurrentState().requestNextMove();		
+	}
+
+	private void handleOnMove(ChessMove move) {
+		ChessState.getCurrentState().onPieceMoved(move);
+		// change view
+		int who = ChessState.getCurrentState().whoMoveNext();
+		text = (TextView)findViewById(R.id.chess_state);
+		if (who == ChessPlayer.SIDE_RED) {
+			text.setText("红方走");
+		} else {
+			text.setText("黑方走");
+		}
+		// 		
+		Message m = new Message();
+		m.what = ChessMessage.MSG_REQUEST_MOVE;
+		handler.sendMessage(m);
+		
+		
+	}
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
@@ -264,6 +345,12 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+		//
+		handler = new ChessHandler();
+	    Message msg = new Message();
+	    msg.what = ChessMessage.MSG_START;
+	    handler.sendMessage(msg);
+	    //
 		loop.start();
 	}
 

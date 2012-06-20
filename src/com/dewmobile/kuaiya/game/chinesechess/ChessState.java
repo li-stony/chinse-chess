@@ -40,12 +40,27 @@ public class ChessState {
 			return;
 		}
 		//
+		boolean lost = false;
 		if(moveTurn == ChessPlayer.SIDE_RED){
-			black.onRivalMoved(move);
+			lost = black.onRivalMoved(board,move);
+			if(lost) {
+				isChessEnd = true;
+				whoWin = ChessPlayer.SIDE_RED;
+				return;
+			}
 		}else{
-			red.onRivalMoved(move);
+			lost = red.onRivalMoved(board,move);
+			if(lost) {
+				isChessEnd = true;
+				whoWin = ChessPlayer.SIDE_BLACK;
+				return;
+			}
 		}
-		// change side to move 
+		// 
+		if(lost){
+			
+		}
+		// change side to request next move 
 		if(moveTurn == ChessPlayer.SIDE_RED){
 			moveTurn = ChessPlayer.SIDE_BLACK;
 		}else{
