@@ -1,5 +1,8 @@
 package com.dewmobile.kuaiya.game.chinesechess;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.os.Handler;
 import android.os.Message;
 import android.widget.TextView;
@@ -8,7 +11,9 @@ import com.dewmobile.game.chinesechess.R;
 
 public class DmChessHandler  extends Handler {
 	private static DmChessHandler inst;
-	private DmChessCallback callback;
+	
+	private List< DmChessCallback > callbacks = new LinkedList<DmChessCallback>();
+	
 	public static DmChessHandler getInstance(){
 		if(inst == null){
 			inst = new DmChessHandler();
@@ -16,7 +21,7 @@ public class DmChessHandler  extends Handler {
 		return inst;
 	}
 	public void addChessCallback(DmChessCallback cb){
-		callback = cb;
+		callbacks.add(cb);
 	}
 	private DmChessHandler(){
 		
@@ -43,17 +48,19 @@ public class DmChessHandler  extends Handler {
 	}
 
 	private void handleStart() {
-		if(callback != null){
-			callback.onGameStart();
+		//
+		for(DmChessCallback cb : callbacks){
+			cb.onGameStart();
 		}
+		//
 		DmChessState.getCurrentState().reset(); // init
 		Message m = new Message();
 		m.what = DmChessMessage.MSG_REQUEST_MOVE;
 		this.sendMessage(m);
 	}
 	private void handleEnd() {
-		if(callback != null){
-			callback.onGameOver();
+		for(DmChessCallback cb : callbacks){
+			cb.onGameOver();
 		}
 		return;
 	}
@@ -62,15 +69,16 @@ public class DmChessHandler  extends Handler {
 	}
 
 	private void handleOnMove(DmChessMove move) {		
-		DmChessState.getCurrentState().onPieceMoved(move);
+		DmChessState.getCurrentState().onPieceMoved(move);		
+		for(DmChessCallback cb : callbacks){
+			cb.onPieceMoved(move);
+		}
+		//
 		if(DmChessState.getCurrentState().isGameOver()){
 			Message m = new Message();
 			m.what = DmChessMessage.MSG_END;
 			this.sendMessage(m);
 			return;
-		}
-		if(callback != null){
-			callback.onPieceMoved(move);
 		}
 		// 		
 		Message m = new Message();

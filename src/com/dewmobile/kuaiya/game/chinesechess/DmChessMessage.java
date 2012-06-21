@@ -5,4 +5,7 @@ public class DmChessMessage {
 	public final static int MSG_END = 1;
 	public final static int MSG_REQUEST_MOVE = 2;
 	public final static int MSG_ON_MOVED = 3;
+	
+	public final static int MSG_MOVE_FAILED = 10;
+	
 }
