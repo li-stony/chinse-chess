@@ -2,33 +2,33 @@ package com.dewmobile.kuaiya.game.chinesechess;
 
 import android.util.Log;
 
-public class ChessRule {
+public class DmChessRule {
 	public final static String TAG = "ChessRule";
-	public boolean checkChessMoveWithRule(ChessPiece[][] board, ChessMove move){
+	public boolean checkChessMoveWithRule(DmChessPiece[][] board, DmChessMove move){
 		Log.d(TAG,"checkChessMoveWithRule() color: "+move.piece.pieceColor
 				+ " type: "+ move.piece.pieceType 
 				+" to: "+move.destX + ","+move.destY);
 		
 		switch(move.piece.pieceType){
-		case ChessPiece.PIECE_JU:
+		case DmChessPiece.PIECE_JU:
 			return checkJuMove(board, move);
-		case ChessPiece.PIECE_MA:
+		case DmChessPiece.PIECE_MA:
 			return checkMaMove(board, move);
-		case ChessPiece.PIECE_XIANG:
+		case DmChessPiece.PIECE_XIANG:
 			return checkXiangMove(board, move);
-		case ChessPiece.PIECE_SHI:
+		case DmChessPiece.PIECE_SHI:
 			return checkShiMove(board, move);
-		case ChessPiece.PIECE_JIANG:
+		case DmChessPiece.PIECE_JIANG:
 			return checkJiangMove(board, move);
-		case ChessPiece.PIECE_PAO:
+		case DmChessPiece.PIECE_PAO:
 			return checkPaoMove(board, move);
-		case ChessPiece.PIECE_ZU:
+		case DmChessPiece.PIECE_ZU:
 			return checkZuMove(board, move);
 		
 		}
 		return false;
 	}
-	private boolean checkMove(ChessMove move){
+	private boolean checkMove(DmChessMove move){
 		if(move.destX < 0 || move.destX > 8){
 			return false;
 		}
@@ -37,7 +37,7 @@ public class ChessRule {
 		}
 		return true;
 	}
-	private boolean checkJuMove(ChessPiece[][] board, ChessMove move){
+	private boolean checkJuMove(DmChessPiece[][] board, DmChessMove move){
 		boolean re = checkMove(move);
 		if(re == false) return false;
 		int tmpx = move.destX - move.piece.pieceX;
@@ -63,11 +63,11 @@ public class ChessRule {
 			return true;
 		}
 	}
-	private boolean checkMaMove(ChessPiece[][] board, ChessMove move){
+	private boolean checkMaMove(DmChessPiece[][] board, DmChessMove move){
 		return true;
 	}
-	private boolean checkXiangMove(ChessPiece[][] board, ChessMove move){
-		ChessPiece p = move.piece;
+	private boolean checkXiangMove(DmChessPiece[][] board, DmChessMove move){
+		DmChessPiece p = move.piece;
 		if(Math.abs(move.destX-p.pieceX) == 2 &&
 				Math.abs(move.destY-p.pieceY)==2){
 			// check block
@@ -83,8 +83,8 @@ public class ChessRule {
 		return true;
 	}
 	
-	private boolean checkShiMove(ChessPiece[][] board, ChessMove move){
-		if(move.piece.pieceColor == ChessPlayer.SIDE_RED){
+	private boolean checkShiMove(DmChessPiece[][] board, DmChessMove move){
+		if(move.piece.pieceColor == DmChessPlayer.SIDE_RED){
 			if( move.piece.pieceX == 4 &&
 					move.piece.pieceY == 1){
 				// can move to abs(x-x1) == 1 , and abs(y-y1) == 1;
@@ -124,8 +124,8 @@ public class ChessRule {
 			}
 		}
 	}
-	private boolean checkJiangMove(ChessPiece[][] board, ChessMove move){
-		if(move.piece.pieceColor == ChessPlayer.SIDE_RED){
+	private boolean checkJiangMove(DmChessPiece[][] board, DmChessMove move){
+		if(move.piece.pieceColor == DmChessPlayer.SIDE_RED){
 			if(move.destX < 3 || move.destX > 5) return false;
 			if(move.destY < 0 || move.destY > 2) return false;
 			
@@ -140,10 +140,10 @@ public class ChessRule {
 		}
 		return false;
 	}
-	private boolean checkPaoMove(ChessPiece[][] board, ChessMove move){
+	private boolean checkPaoMove(DmChessPiece[][] board, DmChessMove move){
 		return true;
 	}
-	private boolean checkZuMove(ChessPiece[][] board, ChessMove move){
+	private boolean checkZuMove(DmChessPiece[][] board, DmChessMove move){
 		return true;
 	}
 	

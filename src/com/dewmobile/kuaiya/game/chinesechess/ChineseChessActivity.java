@@ -13,13 +13,13 @@ import android.widget.TextView;
 
 public class ChineseChessActivity extends Activity {
 	private DmChessStatusView text ;
-	private ChessView chessView;
+	private DmChessMainView chessView;
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);            
         this.setContentView(R.layout.chinese_chess);             
-        chessView = (ChessView)findViewById(R.id.chess_board);
+        chessView = (DmChessMainView)findViewById(R.id.chess_board);
         text = (DmChessStatusView)findViewById(R.id.chess_state);
         DmChessHandler.getInstance().addChessCallback(text);
     }    

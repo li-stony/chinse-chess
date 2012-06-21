@@ -25,16 +25,16 @@ public class DmChessHandler  extends Handler {
 	public void handleMessage(Message msg) {
 
 		switch (msg.what) {
-		case ChessMessage.MSG_START:
+		case DmChessMessage.MSG_START:
 			handleStart();
 			break;
-		case ChessMessage.MSG_END:
+		case DmChessMessage.MSG_END:
 			break;
-		case ChessMessage.MSG_REQUEST_MOVE:
+		case DmChessMessage.MSG_REQUEST_MOVE:
 			handleQuestNextMove();
 			break;
-		case ChessMessage.MSG_ON_MOVED:
-			handleOnMove((ChessMove)msg.obj);
+		case DmChessMessage.MSG_ON_MOVED:
+			handleOnMove((DmChessMove)msg.obj);
 		default:
 			break;
 		}
@@ -42,24 +42,24 @@ public class DmChessHandler  extends Handler {
 	}
 
 	private void handleStart() {
-		ChessState.getCurrentState(); // init
+		DmChessState.getCurrentState(); // init
 		Message m = new Message();
-		m.what = ChessMessage.MSG_REQUEST_MOVE;
+		m.what = DmChessMessage.MSG_REQUEST_MOVE;
 		this.sendMessage(m);
 	}
 
 	private void handleQuestNextMove() {			
-		ChessState.getCurrentState().requestNextMove();		
+		DmChessState.getCurrentState().requestNextMove();		
 	}
 
-	private void handleOnMove(ChessMove move) {
-		ChessState.getCurrentState().onPieceMoved(move);
+	private void handleOnMove(DmChessMove move) {
+		DmChessState.getCurrentState().onPieceMoved(move);
 		if(callback != null){
 			callback.onPieceMoved(move);
 		}
 		// 		
 		Message m = new Message();
-		m.what = ChessMessage.MSG_REQUEST_MOVE;
+		m.what = DmChessMessage.MSG_REQUEST_MOVE;
 		this.sendMessage(m);		
 		
 	}

@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:text="hello"
         />
-	<com.dewmobile.kuaiya.game.chinesechess.ChessView 
+	<com.dewmobile.kuaiya.game.chinesechess.DmChessMainView 
 	    android:id="@+id/chess_board"
 	    android:layout_width="fill_parent" 
 	    android:layout_height="fill_parent"

@@ -1,11 +1,11 @@
 package com.dewmobile.kuaiya.game.chinesechess;
 
-public class ChessMove {
+public class DmChessMove {
 	
 	public final static int MOVE_MOVE = 1;
 	public final static int MOVE_THROW_PIECE = 2; // lost the game
 	
-	public ChessMove(int type, ChessPiece p, int x, int y){
+	public DmChessMove(int type, DmChessPiece p, int x, int y){
 
 		moveType = type;
 		piece = p;
@@ -15,7 +15,7 @@ public class ChessMove {
 	public int getMoveType(){
 		return moveType;
 	}
-	public ChessPiece getChessPiece(){
+	public DmChessPiece getChessPiece(){
 		return piece;
 	}
 	public int getDestX(){
@@ -25,7 +25,7 @@ public class ChessMove {
 		return destY;
 	}
 	private int moveType = MOVE_MOVE;	
-	public ChessPiece piece;
+	public DmChessPiece piece;
 	public int destX;
 	public int destY;
 }

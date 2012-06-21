@@ -10,12 +10,12 @@ import android.util.Log;
  * @author cussyou
  *
  */
-public class ChessPlayer {
-	public final static String TAG = ChessPlayer.class.getName();
+public class DmChessPlayer {
+	public final static String TAG = DmChessPlayer.class.getName();
 	public final static int SIDE_RED = 0;
 	public final static int SIDE_BLACK = 1;
 	
-	public ChessPlayer(int color){
+	public DmChessPlayer(int color){
 		side = color;
 
 	}
@@ -25,7 +25,7 @@ public class ChessPlayer {
 	 * if the player is a computer, then send a message to computer.
 	 * @param rival
 	 */
-	public void requestNextMove(ChessPlayer rival){
+	public void requestNextMove(DmChessPlayer rival){
 		
 	}
 	
@@ -33,7 +33,7 @@ public class ChessPlayer {
 	 * called when receive the next move from player
 	 * @param move
 	 */
-	public void onPieceMoved(ChessMove move){
+	public void onPieceMoved(DmChessMove move){
 		
 	}
 	/**
@@ -41,10 +41,10 @@ public class ChessPlayer {
 	 * @param move
 	 * @return return ture if this player lost
 	 */
-	public boolean onRivalMoved(ChessPiece[][] board, ChessMove move){
+	public boolean onRivalMoved(DmChessPiece[][] board, DmChessMove move){
 		if( move.piece.pieceColor != this.side){
 			if(board[move.destX][move.destY]!= null && 
-					board[move.destX][move.destY].pieceType == ChessPiece.PIECE_JIANG){
+					board[move.destX][move.destY].pieceType == DmChessPiece.PIECE_JIANG){
 				return true;
 			}
 		}else{

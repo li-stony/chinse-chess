@@ -5,7 +5,7 @@ package com.dewmobile.kuaiya.game.chinesechess;
  * @author cussyou
  *
  */
-public class ChessPiece {
+public class DmChessPiece {
 
 	public final static int PIECE_JU = 1;
 	public final static int PIECE_MA = 2;
@@ -23,7 +23,7 @@ public class ChessPiece {
 	 * @param x
 	 * @param y
 	 */
-	public ChessPiece(int color, int type, int x, int y){
+	public DmChessPiece(int color, int type, int x, int y){
 		pieceColor = color;
 		pieceType = type;
 		pieceX = x;
@@ -39,7 +39,7 @@ public class ChessPiece {
 		pieceX = x;
 		pieceY = y;
 	}
-	public boolean equals(ChessPiece obj){
+	public boolean equals(DmChessPiece obj){
 		if( this == obj) return true;
 		if(pieceColor != obj.pieceColor) return false;
 		if(pieceType != obj.pieceType) return false;
@@ -47,7 +47,7 @@ public class ChessPiece {
 		if(pieceY != obj.pieceY ) return false;
 		return true;
 	}
-	public int pieceColor = ChessPlayer.SIDE_RED;
+	public int pieceColor = DmChessPlayer.SIDE_RED;
 	public int pieceType = PIECE_JU;
 	public int pieceX = 0;
 	public int pieceY = 0;

@@ -24,9 +24,9 @@ public class DmChessStatusView extends TextView implements DmChessCallback {
 		
 	}
 	@Override
-	public void onPieceMoved(ChessMove move) {
-		int who = ChessState.getCurrentState().whoMoveNext();		
-		if (who == ChessPlayer.SIDE_RED) {
+	public void onPieceMoved(DmChessMove move) {
+		int who = DmChessState.getCurrentState().whoMoveNext();		
+		if (who == DmChessPlayer.SIDE_RED) {
 			this.setText("红方走");
 		} else {
 			this.setText("黑方走");
