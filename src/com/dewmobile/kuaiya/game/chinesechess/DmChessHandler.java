@@ -43,7 +43,10 @@ public class DmChessHandler  extends Handler {
 	}
 
 	private void handleStart() {
-		DmChessState.getCurrentState(); // init
+		if(callback != null){
+			callback.onGameStart();
+		}
+		DmChessState.getCurrentState().reset(); // init
 		Message m = new Message();
 		m.what = DmChessMessage.MSG_REQUEST_MOVE;
 		this.sendMessage(m);

@@ -41,6 +41,9 @@ public class DmChessStatusView extends TextView implements DmChessCallback {
 			this.setText("黑方胜");
 		}
 	}
-	
+	@Override
+	public void onGameStart(){
+		this.setText("红方先走");
+	}
 	
 }

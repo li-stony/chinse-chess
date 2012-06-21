@@ -18,6 +18,9 @@ public class DmChessState {
 		}
 		return stateInst;
 	}
+	public void reset(){
+		stateInst = new DmChessState();
+	}
 	public int whoMoveNext(){
 		return moveTurn;
 	}
