@@ -4,7 +4,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical" >
-    <TextView 
+    <com.dewmobile.kuaiya.game.chinesechess.DmChessStatusView
         android:id="@+id/chess_state"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"

@@ -23,7 +23,9 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 	// the grid is chess board grid
 	private final int gridWidth = 34;
 	private final int gridHeight = 35;
+	
 	//
+	private final int stateLineHeight = 20;
 	private final int margin = 10;
 	private final int lineWidth = 3;
 	private final float scaleFactor = 1.0f; // maybe others, if need change scale.
@@ -33,13 +35,16 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 	
 	private SurfaceHolder holder;
 	DrawLoop loop ;
-	TextView text;
+	//
+	ChessRule rule = new ChessRule();
 	//
 	private Map<Integer, Bitmap> pieceBitmapMap = new HashMap<Integer,Bitmap>();
 	// bitmap
-	private Bitmap board;
+	private Bitmap chessBoard;
 	private Bitmap pieceBackground;
 	
+	// 
+	boolean isRunning = true;
 	
 	public ChessView(Context context) {
 		super(context);
@@ -58,7 +63,7 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 		holder.addCallback(this);
 		loop = new DrawLoop();
 		//
-		board = BitmapFactory.decodeResource(getResources(), R.drawable.qipan);
+		chessBoard = BitmapFactory.decodeResource(getResources(), R.drawable.qipan);
 		pieceBackground = BitmapFactory.decodeResource(getResources(), R.drawable.qizi);
 	}
 	@Override
@@ -72,21 +77,34 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 			SurfaceCoordinate tmp = new SurfaceCoordinate();
 			tmp.x = x;
 			tmp.y = y;
-			ChessCoordinate coord = surfaceCoordinatetoChess(tmp);
+			//ChessCoordinate coord = surfaceCoordinatetoChess(tmp);
+			// the flow is better
+			ChessCoordinate coord = getNeareastChessCoordinate(x, y);
 			if(coord== null){
 				return true;
 			}
+			
+			ChessState state = ChessState.getCurrentState();
 			// check if here is ChessPiece
-			ChessPiece p = ChessState.getCurrentState().getChessPiece(coord.x, coord.y);
+			ChessPiece p = state.getChessPiece(coord.x, coord.y);
+			
 			if(p == null && selectedPiece == null){
 				return true;
 			}
-			if(p == null && selectedPiece != null){		
-				
-				// move select to destination
+			if(p == null && selectedPiece != null){						
 				ChessMove move = new ChessMove(ChessMove.MOVE_MOVE,selectedPiece, coord.x, coord.y);
-				ChessState.getCurrentState().onPieceMoved(move);
+				// check first
+				boolean re = rule.checkChessMoveWithRule(state.getChessBoard(), move);
+				if(re==false){ // can't move
+					return true;
+				}
+				// move select to destination				
 				selectedPiece = null ;
+				Message msg = new Message();
+				msg.what = ChessMessage.MSG_ON_MOVED;
+				msg.obj = move;
+				DmChessHandler.getInstance().sendMessage(msg);
+				return true;
 				
 			}
 			if(p != null && selectedPiece == null){
@@ -102,11 +120,20 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 					selectedPiece = p;
 					return true;
 				}else{
-					// kill rival's piece 					
+					// kill rival's piece 			
 					ChessMove move = new ChessMove(ChessMove.MOVE_MOVE,selectedPiece, coord.x, coord.y);
 					// check move first 
-					ChessState.getCurrentState().onPieceMoved(move);
-					selectedPiece = null;
+					boolean re = rule.checkChessMoveWithRule(state.getChessBoard(), move);
+					if(re==false){ // can't move
+						return true;
+					}
+					// move select to destination				
+					selectedPiece = null ;
+					Message msg = new Message();
+					msg.what = ChessMessage.MSG_ON_MOVED;
+					msg.obj = move;
+					DmChessHandler.getInstance().sendMessage(msg);
+					return true;
 				}
 			}
 			
@@ -117,7 +144,7 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 	private void doDraw(Canvas canvas){
 		// background
 		canvas.drawColor(Color.WHITE);
-		canvas.drawBitmap(board, margin, margin, null);
+		canvas.drawBitmap(chessBoard, margin, margin, null);
 		// chess piece
 		ChessState state = ChessState.getCurrentState();
 		state.lock();
@@ -164,9 +191,25 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 		return re;
 		
 	}
-	// 
-	private ChessPiece getChessPieceBySurfaceCoordinate(){
-		return null;
+	//
+	private ChessCoordinate getNeareastChessCoordinate( float x, float y){
+		ChessCoordinate re = null;
+		float distance = 100000.0f;
+		for(int i = 0;i<9;i++){
+			for(int j =0;j<10;j++){
+				ChessCoordinate coord = new ChessCoordinate();
+				coord.x = i;
+				coord.y = j;
+				SurfaceCoordinate tmp = chessCoordinateToSurface(coord);
+				float d = (float) Math.sqrt((tmp.x-x)*(tmp.x-x)+(tmp.y-y)*(tmp.y-y));
+				if(d< distance){
+					distance = d;
+					re = coord;
+				}
+			}
+		}
+		if(distance > gridWidth) return null;
+		return re;
 	}
 	private void drawPiece(Canvas canvas, ChessPiece piece){
 		// the center x,y of piece in the surface.
@@ -261,8 +304,11 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 	}
 	class DrawLoop extends Thread{
 		public void run(){
-			while(true){
+			while(isRunning){
 				Canvas canvas = holder.lockCanvas();
+				if(canvas == null){
+					continue;
+				}
 				// draw
 				doDraw(canvas);
 				holder.unlockCanvasAndPost(canvas);
@@ -282,60 +328,7 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 		public float x;
 		public float y;
 	}
-	 private Handler handler ;
-	    
-	class ChessHandler extends Handler {
-
-		@Override
-		public void handleMessage(Message msg) {
-
-			switch (msg.what) {
-			case ChessMessage.MSG_START:
-				handleStart();
-				break;
-			case ChessMessage.MSG_END:
-				break;
-			case ChessMessage.MSG_REQUEST_MOVE:
-				handleQuestNextMove();
-				break;
-			case ChessMessage.MSG_ON_MOVED:
-				handleOnMove(null);
-			default:
-				break;
-			}
-			// draw
-		}
-	}
-
-	private void handleStart() {
-		ChessState.getCurrentState(); // init
-		Message m = new Message();
-		m.what = ChessMessage.MSG_REQUEST_MOVE;
-		handler.sendMessage(m);
-	}
-
-	private void handleQuestNextMove() {		
-		
-		ChessState.getCurrentState().requestNextMove();		
-	}
-
-	private void handleOnMove(ChessMove move) {
-		ChessState.getCurrentState().onPieceMoved(move);
-		// change view
-		int who = ChessState.getCurrentState().whoMoveNext();
-		text = (TextView)findViewById(R.id.chess_state);
-		if (who == ChessPlayer.SIDE_RED) {
-			text.setText("红方走");
-		} else {
-			text.setText("黑方走");
-		}
-		// 		
-		Message m = new Message();
-		m.what = ChessMessage.MSG_REQUEST_MOVE;
-		handler.sendMessage(m);
-		
-		
-	}
+	 
 	@Override
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
@@ -345,19 +338,14 @@ public class ChessView extends SurfaceView implements SurfaceHolder.Callback{
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		//
-		handler = new ChessHandler();
-	    Message msg = new Message();
-	    msg.what = ChessMessage.MSG_START;
-	    handler.sendMessage(msg);
 	    //
+		isRunning = true;
 		loop.start();
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder holder) {
-		loop.interrupt();
-		
+		isRunning = false;	
 	}
 	
 }
