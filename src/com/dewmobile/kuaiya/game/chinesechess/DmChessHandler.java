@@ -23,12 +23,13 @@ public class DmChessHandler  extends Handler {
 	}
 	@Override
 	public void handleMessage(Message msg) {
-
+		
 		switch (msg.what) {
 		case DmChessMessage.MSG_START:
 			handleStart();
 			break;
 		case DmChessMessage.MSG_END:
+			handleEnd();
 			break;
 		case DmChessMessage.MSG_REQUEST_MOVE:
 			handleQuestNextMove();
@@ -47,13 +48,24 @@ public class DmChessHandler  extends Handler {
 		m.what = DmChessMessage.MSG_REQUEST_MOVE;
 		this.sendMessage(m);
 	}
-
+	private void handleEnd() {
+		if(callback != null){
+			callback.onGameOver();
+		}
+		return;
+	}
 	private void handleQuestNextMove() {			
 		DmChessState.getCurrentState().requestNextMove();		
 	}
 
-	private void handleOnMove(DmChessMove move) {
+	private void handleOnMove(DmChessMove move) {		
 		DmChessState.getCurrentState().onPieceMoved(move);
+		if(DmChessState.getCurrentState().isGameOver()){
+			Message m = new Message();
+			m.what = DmChessMessage.MSG_END;
+			this.sendMessage(m);
+			return;
+		}
 		if(callback != null){
 			callback.onPieceMoved(move);
 		}

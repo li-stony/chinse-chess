@@ -46,20 +46,15 @@ public class DmChessState {
 			if(lost) {
 				isChessEnd = true;
 				whoWin = DmChessPlayer.SIDE_RED;
-				return;
 			}
 		}else{
 			lost = red.onRivalMoved(board,move);
 			if(lost) {
 				isChessEnd = true;
 				whoWin = DmChessPlayer.SIDE_BLACK;
-				return;
 			}
 		}
-		// 
-		if(lost){
-			
-		}
+		
 		// change side to request next move 
 		if(moveTurn == DmChessPlayer.SIDE_RED){
 			moveTurn = DmChessPlayer.SIDE_BLACK;

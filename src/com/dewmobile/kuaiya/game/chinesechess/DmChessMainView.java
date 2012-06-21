@@ -85,6 +85,10 @@ public class DmChessMainView extends SurfaceView implements SurfaceHolder.Callba
                         }
                         
                         DmChessState state = DmChessState.getCurrentState();
+                        // check if game over
+                        if(state.isGameOver()){
+                        	return true;
+                        }
                         // check if here is ChessPiece
                         DmChessPiece p = state.getChessPiece(coord.x, coord.y);
                         

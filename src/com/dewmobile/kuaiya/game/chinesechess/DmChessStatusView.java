@@ -32,5 +32,15 @@ public class DmChessStatusView extends TextView implements DmChessCallback {
 			this.setText("黑方走");
 		}
 	}
-
+	@Override
+	public void onGameOver(){
+		int who = DmChessState.getCurrentState().getWhoWin();
+		if (who == DmChessPlayer.SIDE_RED) {
+			this.setText("红方胜");
+		} else {
+			this.setText("黑方胜");
+		}
+	}
+	
+	
 }

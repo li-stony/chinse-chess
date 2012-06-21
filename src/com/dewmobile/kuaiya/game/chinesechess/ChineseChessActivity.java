@@ -22,6 +22,10 @@ public class ChineseChessActivity extends Activity {
         chessView = (DmChessMainView)findViewById(R.id.chess_board);
         text = (DmChessStatusView)findViewById(R.id.chess_state);
         DmChessHandler.getInstance().addChessCallback(text);
+        Message msg = new Message();
+        msg.what = DmChessMessage.MSG_START ;
+        DmChessHandler.getInstance().sendMessage(msg);
+        
     }    
    
    

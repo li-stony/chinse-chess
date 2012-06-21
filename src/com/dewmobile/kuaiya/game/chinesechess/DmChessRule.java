@@ -68,6 +68,16 @@ public class DmChessRule {
 	}
 	private boolean checkXiangMove(DmChessPiece[][] board, DmChessMove move){
 		DmChessPiece p = move.piece;
+		// check if the move is in the rival's land.
+		if(move.piece.pieceColor==DmChessPlayer.SIDE_RED){
+			if(move.destY > 4){
+				return false;
+			}
+		}else{
+			if(move.destY < 5){
+				return false;
+			}
+		}
 		if(Math.abs(move.destX-p.pieceX) == 2 &&
 				Math.abs(move.destY-p.pieceY)==2){
 			// check block
