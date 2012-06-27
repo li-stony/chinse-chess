@@ -356,8 +356,15 @@ public class DmChessMainView extends SurfaceView implements
 			BitmapFactory.Options opt = new BitmapFactory.Options();
 			opt.inScaled = false;
 			value = BitmapFactory.decodeResource(getResources(), id, opt);
-			pieceBitmapMap.put(key, value);
-
+			Matrix m = new Matrix();
+			m.postScale(scaleFactor, scaleFactor);
+			Bitmap valueScaled = Bitmap.createBitmap(value,
+					0,0,
+					value.getWidth(), value.getHeight(),
+					m,
+					true);
+			pieceBitmapMap.put(key, valueScaled);
+			value = valueScaled;
 		}
 		return value;
 	}

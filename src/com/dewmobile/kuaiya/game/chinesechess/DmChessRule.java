@@ -225,8 +225,12 @@ public class DmChessRule {
 		// the counter of pieces on the road has calculated
 		if(cnt > 1){ // too many piece on the road
 			return false;
-		}else if(cnt == 1){ // kill it
-			return true;
+		}else if(cnt == 1){ // kill it if dest is rival's or can't move
+			if(board[move.destX][move.destY] != null ){
+				return true;
+			}else{
+				return false;
+			}
 		}else { // 
 			if(board[move.destX][move.destY] == null){
 				return true; // the dest is empty;
