@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.dewmobile.game.chinesechess"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0" 
+    android:sharedUserId="com.dewmobile.plugin">
 
     <uses-sdk android:minSdkVersion="8" />
 
@@ -13,8 +14,11 @@
             android:name="com.dewmobile.kuaiya.game.chinesechess.ChineseChessActivity"
             android:label="@string/app_name" >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
+				<action android:name="com.dewmobile.plugin.entry" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+				<action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

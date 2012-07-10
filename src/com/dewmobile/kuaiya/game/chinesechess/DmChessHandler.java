@@ -36,11 +36,18 @@ public class DmChessHandler  extends Handler {
 		case DmChessMessage.MSG_END:
 			handleEnd();
 			break;
-		case DmChessMessage.MSG_REQUEST_MOVE:
-			handleQuestNextMove();
+		case DmChessMessage.MSG_REQUEST_RED_MOVE:
+			handleRequestRedMove();
 			break;
-		case DmChessMessage.MSG_ON_MOVED:
-			handleOnMove((DmChessMove)msg.obj);
+		case DmChessMessage.MSG_ON_RED_MOVED:
+			handleOnRedMove((DmChessMove)msg.obj);
+			break;
+		case DmChessMessage.MSG_REQUEST_BLACK_MOVE:
+			handleRequestBlackMove();
+			break;
+		case DmChessMessage.MSG_ON_BLACK_MOVED:
+			handleOnBlackMove((DmChessMove)msg.obj);
+			break;
 		default:
 			break;
 		}
@@ -52,10 +59,8 @@ public class DmChessHandler  extends Handler {
 		for(DmChessCallback cb : callbacks){
 			cb.onGameStart();
 		}
-		//
-		DmChessState.getCurrentState().reset(); // init
 		Message m = new Message();
-		m.what = DmChessMessage.MSG_REQUEST_MOVE;
+		m.what = DmChessMessage.MSG_REQUEST_RED_MOVE;
 		this.sendMessage(m);
 	}
 	private void handleEnd() {
@@ -64,14 +69,16 @@ public class DmChessHandler  extends Handler {
 		}
 		return;
 	}
-	private void handleQuestNextMove() {			
-		DmChessState.getCurrentState().requestNextMove();		
+	private void handleRequestRedMove() {	
+		for(DmChessCallback cb : callbacks){
+			cb.onRequestRedMove();
+		}
+		
 	}
 
-	private void handleOnMove(DmChessMove move) {		
-		DmChessState.getCurrentState().onPieceMoved(move);		
+	private void handleOnRedMove(DmChessMove move) {			
 		for(DmChessCallback cb : callbacks){
-			cb.onPieceMoved(move);
+			cb.onRedMove(move);
 		}
 		//
 		if(DmChessState.getCurrentState().isGameOver()){
@@ -80,10 +87,24 @@ public class DmChessHandler  extends Handler {
 			this.sendMessage(m);
 			return;
 		}
-		// 		
-		Message m = new Message();
-		m.what = DmChessMessage.MSG_REQUEST_MOVE;
-		this.sendMessage(m);		
 		
+	}
+	private void handleRequestBlackMove() {	
+		for(DmChessCallback cb : callbacks){
+			cb.onRequestBlackMove();
+		}		
+	}
+
+	private void handleOnBlackMove(DmChessMove move) {			
+		for(DmChessCallback cb : callbacks){
+			cb.onBlackMove(move);
+		}
+		//
+		if(DmChessState.getCurrentState().isGameOver()){
+			Message m = new Message();
+			m.what = DmChessMessage.MSG_END;
+			this.sendMessage(m);
+			return;
+		}
 	}
 }

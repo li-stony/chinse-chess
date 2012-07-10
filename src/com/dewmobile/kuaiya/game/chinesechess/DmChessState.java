@@ -12,27 +12,28 @@ import java.util.concurrent.Semaphore;
 public class DmChessState {
 	public final static int CHESS_STATE_END = 0;
 	public final static int CHESS_STATE_PLAYING = 1 ;
+	
 	public static DmChessState getCurrentState(){
-		if(stateInst == null){
-			stateInst = new DmChessState();
-		}
 		return stateInst;
 	}
-	public void reset(){
+	/**
+	 * 
+	 * @param r the red player
+	 * @param b the black player
+	 */
+	public static void createFirstState(){
 		stateInst = new DmChessState();
 	}
+	
 	public int whoMoveNext(){
 		return moveTurn;
 	}
-	public DmChessPlayer getPlayer(int side){
-		if(side == DmChessPlayer.SIDE_RED){
-			return red;
-		}else{
-			return black;
-		}
-	}
+	
 	/**
-	 * called when any side moved.
+	 * must called after DmChessPlayer.onPieceMoved() and .onRivalMoved().
+	 * because, when DmChessState.onPieceMoved(), all states of chess are changed.
+	 * and other methods maybe need some state such as the 'board' to do some thing, 
+	 * when this method called, the 'board' will be changed.
 	 * may be called after player move some piece on UI, or computer returns a move;
 	 * @param move
 	 */
@@ -42,24 +43,11 @@ public class DmChessState {
 			isChessEnd = true;
 			return;
 		}
-		//
-		boolean lost = false;
-		if(moveTurn == DmChessPlayer.SIDE_RED){
-			lost = black.onRivalMoved(board,move);
-			if(lost) {
-				isChessEnd = true;
-				whoWin = DmChessPlayer.SIDE_RED;
-			}
-		}else{
-			lost = red.onRivalMoved(board,move);
-			if(lost) {
-				isChessEnd = true;
-				whoWin = DmChessPlayer.SIDE_BLACK;
-			}
+		if(isChessEnd){
+			return ;
 		}
-		
 		// change side to request next move 
-		if(moveTurn == DmChessPlayer.SIDE_RED){
+		if(move.piece.pieceColor == DmChessPlayer.SIDE_RED){
 			moveTurn = DmChessPlayer.SIDE_BLACK;
 		}else{
 			moveTurn = DmChessPlayer.SIDE_RED;
@@ -71,13 +59,7 @@ public class DmChessState {
 		board[move.piece.pieceX][move.piece.pieceY] = null;
 		unlock();
 	}
-	public void requestNextMove(){
-		if(moveTurn == DmChessPlayer.SIDE_RED){
-			red.requestNextMove(black);
-		}else{
-			black.requestNextMove(red);
-		}
-	}
+	
 	public DmChessPiece getChessPiece(int x,int y){
 		return board[x][y];
 	}
@@ -103,6 +85,12 @@ public class DmChessState {
 	public int getWhoWin(){
 		return whoWin;
 	}
+	public void setWhoWin(int w){
+		whoWin = w;
+	}
+	public void setGameOver(boolean g){
+		isChessEnd = g;
+	}
 	public boolean isGameOver(){
 		return isChessEnd;
 	}
@@ -115,8 +103,7 @@ public class DmChessState {
 	private int moveTurn = DmChessPlayer.SIDE_RED;
 	private int whoWin = -1;
 	private boolean isChessEnd = false;
-	private DmChessPlayer red;
-	private DmChessPlayer black;	
+		
 	private Semaphore mutex ;
 	// this is a index, that, give the x,y, can get the ChessPiese in red or black;
 	private DmChessPiece[][] board = new DmChessPiece[9][10];
@@ -124,8 +111,6 @@ public class DmChessState {
 	private static DmChessState stateInst;
 	
 	private DmChessState(){
-		red = new DmChessPlayer(DmChessPlayer.SIDE_RED);
-		black = new DmChessPlayer(DmChessPlayer.SIDE_BLACK);
 		mutex = new Semaphore(1);
 		initBoard();
 	}

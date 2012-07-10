@@ -2,4 +2,8 @@
 <resources>
     <string name="hello">Hello World, ChessActivity!</string>
     <string name="app_name">Chess</string>
+    <string name="red_move">红方走</string>
+    <string name="red_win">红方胜</string>
+    <string name="black_move">黑方走</string>
+    <string name="black_win">黑方胜</string>
 </resources>

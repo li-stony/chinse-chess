@@ -48,9 +48,11 @@ public class DmChessMainView extends SurfaceView implements
 	private Bitmap pieceBackground;
 	private Bitmap pieceBackgroundScaled;
 	private boolean needScale = true;
-	
+	private boolean needRotate = false; // if need rotate the chess board
 	//
 	boolean isRunning = true;
+	//
+	boolean requestMoveEnabled = false;
 
 	public DmChessMainView(Context context) {
 		super(context);
@@ -80,9 +82,14 @@ public class DmChessMainView extends SurfaceView implements
 		pieceBackground = BitmapFactory.decodeResource(getResources(),
 				R.drawable.qizi, opt);
 	}
-
+	public void enableQuestMove(boolean r){
+		requestMoveEnabled = r;
+	}
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		if(!requestMoveEnabled){
+			return true;
+		}
 		int action = event.getAction();
 		if (action == MotionEvent.ACTION_DOWN) {
 			// x,y
@@ -109,8 +116,7 @@ public class DmChessMainView extends SurfaceView implements
 
 			if (p == null && selectedPiece == null) {
 				return true;
-			}
-			if (p == null && selectedPiece != null) {
+			}else if (p == null && selectedPiece != null) {
 				DmChessMove move = new DmChessMove(DmChessMove.MOVE_MOVE,
 						selectedPiece, coord.x, coord.y);
 				// check first
@@ -119,16 +125,20 @@ public class DmChessMainView extends SurfaceView implements
 				if (re == false) { // can't move
 					return true;
 				}
-				// move select to destination
-				selectedPiece = null;
+				// move select to destination				
 				Message msg = new Message();
-				msg.what = DmChessMessage.MSG_ON_MOVED;
+				if(selectedPiece.pieceColor == DmChessPlayer.SIDE_BLACK){
+					msg.what = DmChessMessage.MSG_ON_BLACK_MOVED;
+				}else{
+					msg.what = DmChessMessage.MSG_ON_RED_MOVED;
+				}
+				
 				msg.obj = move;
 				DmChessHandler.getInstance().sendMessage(msg);
+				selectedPiece = null;
 				return true;
 
-			}
-			if (p != null && selectedPiece == null) {
+			}else if (p != null && selectedPiece == null) {
 				if (p.pieceColor == DmChessState.getCurrentState()
 						.whoMoveNext()) {
 					selectedPiece = p;
@@ -136,8 +146,7 @@ public class DmChessMainView extends SurfaceView implements
 				} else {
 					return true; // can't move rival's piece;
 				}
-			}
-			if (p != null && selectedPiece != null) {
+			}else if (p != null && selectedPiece != null) {
 				if (p.pieceColor == DmChessState.getCurrentState()
 						.whoMoveNext()) {
 					selectedPiece = p;
@@ -152,12 +161,16 @@ public class DmChessMainView extends SurfaceView implements
 					if (re == false) { // can't move
 						return true;
 					}
-					// move select to destination
-					selectedPiece = null;
+					// move select to destination					
 					Message msg = new Message();
-					msg.what = DmChessMessage.MSG_ON_MOVED;
+					if(selectedPiece.pieceColor == DmChessPlayer.SIDE_BLACK){
+						msg.what = DmChessMessage.MSG_ON_BLACK_MOVED;
+					}else{
+						msg.what = DmChessMessage.MSG_ON_RED_MOVED;
+					}
 					msg.obj = move;
 					DmChessHandler.getInstance().sendMessage(msg);
+					selectedPiece = null;
 					return true;
 				}
 			}
@@ -165,7 +178,9 @@ public class DmChessMainView extends SurfaceView implements
 		}
 		return true;
 	}
-
+	public void setRotate(boolean r){
+		needRotate = r;
+	}
 	private void doDraw(Canvas canvas) {
 		if(needScale){
 		// calculate the scale factor		
@@ -218,8 +233,17 @@ public class DmChessMainView extends SurfaceView implements
 	// change chess coordinate to surface coordinate
 	private SurfaceCoordinate chessCoordinateToSurface(ChessCoordinate chess) {
 		SurfaceCoordinate re = new SurfaceCoordinate();
-		re.x = margin + scaleFactor*boardMarginWidth + scaleFactor*gridWidth * chess.x ;
-		re.y = margin + scaleFactor*boardMarginHeight+ scaleFactor*gridHeight * (9 - chess.y) ;
+		int x,y;
+		if(!needRotate){
+			x = chess.x;
+			y = chess.y;
+		}else{
+			x = 8 - chess.x;
+			y = 9 - chess.y;
+		}
+		// the margin in the chess board background, must be scaled too.
+		re.x = margin + scaleFactor*boardMarginWidth + scaleFactor*gridWidth * x ;
+		re.y = margin + scaleFactor*boardMarginHeight+ scaleFactor*gridHeight * (9 - y) ;
 		return re;
 	}
 
@@ -265,7 +289,7 @@ public class DmChessMainView extends SurfaceView implements
 		}
 		if (distance > gridWidth)
 			return null;
-		return re;
+		return re;	
 	}
 
 	private void drawPiece(Canvas canvas, DmChessPiece piece) {
@@ -277,8 +301,10 @@ public class DmChessMainView extends SurfaceView implements
 		// piece = symmetry piece
 		//
 		ChessCoordinate tmp = new ChessCoordinate();
+		
 		tmp.x = piece.pieceX;
 		tmp.y = piece.pieceY;
+		
 		SurfaceCoordinate coord = chessCoordinateToSurface(tmp);
 		centerX = coord.x;
 		centerY = coord.y;
@@ -368,7 +394,7 @@ public class DmChessMainView extends SurfaceView implements
 		}
 		return value;
 	}
-
+	
 	class DrawLoop extends Thread {
 		public void run() {
 			while (isRunning) {

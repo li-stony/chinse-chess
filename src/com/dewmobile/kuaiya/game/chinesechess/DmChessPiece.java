@@ -14,6 +14,7 @@ public class DmChessPiece {
 	public final static int PIECE_JIANG = 5;
 	public final static int PIECE_PAO = 6;
 	public final static int PIECE_ZU = 7;
+	public final static int PIECE_UNKNOWN = -1;
 	/**
 	 * the x,y are coordinates. 
 	 * x is from the left to right of red player, starts from 0 to 8.
@@ -39,6 +40,25 @@ public class DmChessPiece {
 		pieceX = x;
 		pieceY = y;
 	}
+	public static int getPiecetype(String str){
+		if(str.equalsIgnoreCase("ju")){
+			return PIECE_JU;
+		} else if(str.equalsIgnoreCase("ma")){
+			return PIECE_MA;
+		} else if(str.equalsIgnoreCase("pao")){
+			return PIECE_PAO;
+		} else if(str.equalsIgnoreCase("xiang")){
+			return PIECE_XIANG;
+		} else if(str.equalsIgnoreCase("shi")){
+			return PIECE_SHI;
+		} else if(str.equalsIgnoreCase("jiang")){
+			return PIECE_JIANG;
+		} else if(str.equalsIgnoreCase("zu")){
+			return PIECE_ZU;
+		} 
+		return PIECE_UNKNOWN;
+	}
+	
 	public boolean equals(DmChessPiece obj){
 		if( this == obj) return true;
 		if(pieceColor != obj.pieceColor) return false;
